@@ -1,3 +1,5 @@
+--This question we have to use scalar function
+
 CREATE FUNCTION Chitiethoadon_Func1 (@mavt nvarchar(5))
 RETURNS DECIMAL(10,2)
 AS
@@ -23,3 +25,4 @@ SET @result = dbo.Chitiethoadon_Func1(@mavt);
 SELECT @result AS TotalAmount;
 
 SELECT * from CHITIETHOADON
+

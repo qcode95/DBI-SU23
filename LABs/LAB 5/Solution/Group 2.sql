@@ -1,3 +1,5 @@
+--This question we have to use scalar function
+
 CREATE FUNCTION GetHoaDonTotal(@MaHD nvarchar(10))
 RETURNS DECIMAL(10,2)
 AS
