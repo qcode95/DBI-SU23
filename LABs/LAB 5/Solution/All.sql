@@ -119,6 +119,7 @@ as
 	join CHITIETHOADON ct on h.MaHD = ct.MaHD
 	join VATTU v on ct.MaVT = v.MaVT
 	where v.TenVT = N'Gach Ong'
+go
 
 
 
