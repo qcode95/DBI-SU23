@@ -1,5 +1,68 @@
+﻿/*
+
+
+- Scalar function: Hàm có 1 or nhiều đối số và phải trả về 1 giá trị
+	create function <name>
+	(@đối số -- KDL)
+	return KDL 
+	as
+	begin
+		<câu lệnh>
+		return <giá trị>
+	end
+	--> calling: select <name>(Đối số)
+
+- In-line function: Hàm có 1 hay nhiều đối số và phải trả về 1 bảng
+	create function <name>
+	(
+		<Đối số 1>
+		<------ 2>
+		...
+	)
+	return table
+	as
+	return <câu lệnh>
+	--> calling: select <cột của bảng mình muốn hiển thị> from <name>(đối số)
+
+- Multi function: Hàm có 1 or nhiều đối số or k có đối số và phải return về 1 bảng. Trong hàm ta thêm cái thuộc tính cho bảng được return
+	create function <name>
+	(đối số)
+	return <@tên bảng> table (tên các cột muốn bảng được return hiển thị)
+	as
+	begin 
+		<câu lệnh>
+		return
+	end
+	--> calling: select <cột của bảng mình muốn hiển thị> from <name>(đối số)
+
 
 /*
+
+
+- Procedure: thủ tục
+	create procedure <tên procedure>
+	(Đối số)
+	as
+	begin
+		<khối lệnh>
+	end
+
+- Trigger: công tắc
+	create trigger <tên trigger>
+	on <tên bảng>
+	for/after [insert, delete, update]
+	as
+	begin
+		<khối lệnh>
+	end
+
+- View: Tạo 1 bảng nhỏ để quan sát
+	create view <tên view>
+	as
+		<khối lệnh>
+
+
+*/
 Group 1:  Write function name: StudenID_ Func1 with parameter @mavt.
 		  Return the sum of sl*giaban corresponding.
 */
@@ -67,9 +130,17 @@ create procedure QE170239_Proc2
 @tongtien int
 as
 begin 
-select * from HOADON
-where MaHD = @mahd AND Ngay = @ngay AND MaKH = @makh AND TongTG = @tongtg AND Tongtien = @tongtien
-insert into HOADON values (@mahd, @ngay, @makh, @tongtg, @tongtien)
+	if exists (select 1 
+			   from HOADON 
+			   where MaHD = @mahd)
+		begin 
+			print 'Hoa don da ton tai'
+		end
+	else
+		begin
+			insert into HOADON values (@mahd, @ngay, @makh, @tongtg, @tongtien)
+			print 'Them hoa don thanh cong'
+		end
 end
 go
 
@@ -95,19 +166,11 @@ end
 go
 
 enable trigger QE170239_Trig1 on CHITIETHOADON
-
-INSERT INTO CHITIETHOADON VALUES ('HD010', 'VT02', 10, null, 55000)
-go
-
-insert into HOADON values('HD011', '2023-07-12', 'KH01', 0)
-
-select * from HOADON
-select * from CHITIETHOADON
 go
 
 
 /*
-Group 6: Write view name: StudentID_View1 to extract list of customers who bought �Gach Ong'.
+Group 6: Write view name: StudentID_View1 to extract list of customers who bought ‘Gach Ong'.
 */
 
 
