@@ -91,15 +91,14 @@ returns decimal(10, 2)
 as
 begin 
 	declare @total Decimal(10, 2)
-	set @total = (select sum(TongTG) 
-				  from HOADON
+	set @total = (select sum(sl * giaban) 
+				  from CHITIETHOADON
 				  where MaHD = @mahd)
 	if @total is null
 		set @total = 0.0
 	return @total
 end
 go
-
 
 /*
 Group 3:  Write procedure name: StudenId _Proc1, parameter @makh, @diachi. 
@@ -156,12 +155,10 @@ on CHITIETHOADON
 after insert
 as
 begin
+	declare @mahd nvarchar(5) = (select MaHD from inserted)
 	update HOADON
-	set TongTG = (select sum(ch.sl * ch.giaban) 
-				  from CHITIETHOADON ch
-				  join inserted ins on ch.maHD = ins.maHD)
-	from HOADON h
-	join inserted ins on h.MaHD = ins.MaHD
+	set TongTG = dbo.QE170239_Func2(@mahd)
+	where MaHD = @mahd
 end
 go
 
