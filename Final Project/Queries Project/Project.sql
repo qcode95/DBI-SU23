@@ -1,4 +1,4 @@
-﻿USE master
+USE master
 GO;
 
 IF EXISTS (SELECT name FROM sys.databases
@@ -12,180 +12,278 @@ GO;
 USE DBI202_SU23_PROJECT_G4
 GO;
 
-CREATE TABLE HOTEL
+-- Create a new table Hotel
+CREATE TABLE Hotel (
+  hotel_id NVARCHAR(10) NOT NULL,
+  hotel_name NVARCHAR(255) NOT NULL,
+  [address] NVARCHAR(255) NOT NULL,
+  phone DECIMAL(10,0) NULL,
+  email NVARCHAR(255) NULL
+
+  CONSTRAINT PK_Hotel PRIMARY KEY CLUSTERED
+  (
+	hotel_id ASC
+  )	
+);
+GO
+
+-- Create a new table Employee
+CREATE TABLE Employee (
+  employee_SSN DECIMAL(10,0) NOT NULL,
+  employee_name NVARCHAR(255) NOT NULL,
+  [role] NVARCHAR(50),
+  sex BIT,
+  phone DECIMAL(10,0),
+  salary DECIMAL(10,0),
+  DOB DATE,
+  supervisor_SSN DECIMAL(10,0),
+  hotel_id NVARCHAR(10)
+
+  CONSTRAINT PK_Employee PRIMARY KEY (employee_SSN),
+  CONSTRAINT FK_Employee FOREIGN KEY (hotel_id) REFERENCES Hotel(hotel_id)
+);
+GO;
+
+-- Create a new table RoomType
+CREATE TABLE RoomType (
+  room_type NVARCHAR(20) NOT NULL,
+  Descriptions NVARCHAR(255) NULL,
+  price DECIMAL(10, 2) NULL
+
+  CONSTRAINT PK_RoomT PRIMARY KEY CLUSTERED 
+  (
+	room_type ASC
+  )
+);
+Go
+
+-- Create a new table Room
+CREATE TABLE Room (
+  room_id NVARCHAR(10) NOT NULL,
+  hotel_id NVARCHAR(10) NOT NULL,
+  room_type NVARCHAR(20) NOT NULL,
+  [status] NVARCHAR(20) NULL,
+  
+  CONSTRAINT PK_Room PRIMARY KEY CLUSTERED
+  (
+	room_id ASC
+  ),
+  CONSTRAINT FK_Room FOREIGN KEY (hotel_id) REFERENCES Hotel(hotel_id),
+  CONSTRAINT FK_Room_1 FOREIGN KEY (room_type) REFERENCES RoomType(room_type)
+);
+Go;
+
+-- Create a new table Guest
+CREATE TABLE Guest (
+  guest_SSN DECIMAL(10,0) NOT NULL,
+  guest_name NVARCHAR(255) NOT NULL,
+  phone NVARCHAR(20) NULL,
+  sex BIT NULL,
+  email NVARCHAR(255) NULL,
+  country NVARCHAR(255) NULL
+
+  CONSTRAINT PK_Guest PRIMARY KEY (guest_SSN)
+);
+GO;
+
+-- Create a new table Booking
+CREATE TABLE Booking (
+  booking_id NVARCHAR(36) NOT NULL,
+  guest_SSN DECIMAL(10,0) NOT NULL,
+  room_id NVARCHAR(10) NOT NULL,
+  check_in_date DATE,
+  check_out_date DATE,
+  booking_date DATE,
+
+  CONSTRAINT PK_Booking PRIMARY KEY CLUSTERED
+  (
+	booking_id ASC
+  ),
+  CONSTRAINT FK_Booking FOREIGN KEY (guest_SSN) REFERENCES Guest(guest_SSN),
+  CONSTRAINT FK_Booking_1 FOREIGN KEY (room_id) REFERENCES Room(room_id)
+);
+GO;
+
+-- Create a new table Bill
+CREATE TABLE Bill (
+  bill_id NVARCHAR(36) NOT NULL,
+  guest_SSN DECIMAL(10,0) NOT NULL,
+  total_amount DECIMAL(10, 1) NULL,
+  payment_status NVARCHAR(20) NULL,
+  payment_date DATE NULL
+  
+  CONSTRAINT PK_Bill PRIMARY KEY CLUSTERED
+  (
+	bill_id ASC
+  ),
+  CONSTRAINT FK_Bill FOREIGN KEY (guest_SSN) REFERENCES Guest(guest_SSN)
+);
+GO;
+
+-- Insert data into the Hotel table
+INSERT INTO Hotel (hotel_id, hotel_name, [address], phone, email)
+VALUES ('H001', 'Hotel ABC', '123 Main Street', 1234567890, 'hotelabc@example.com');
+GO;
+
+-- Insert data into the Employee table
+INSERT INTO Employee (employee_SSN, employee_name, [role], sex, phone, salary, DOB, supervisor_SSN, hotel_id)
+VALUES
+(1234567892, 'David Beckham', 'Manager', 1, 9876543210, 5000.00, '1990-05-02', NULL, 'H001'),
+(1234567890, 'John Doe', 'Manager', 1, 9876543210, 5000.00, '1990-01-01', NULL, 'H001'),
+(2345678901, 'Jane Smith', 'Receptionist', 0, 8765432109, 3000.00, '1995-02-15', 1234567890, 'H001'),
+(3456789012, 'David Johnson', 'Housekeeping', 1, 7654321098, 2500.00, '1992-07-10', 1234567890, 'H001'),
+(4567890123, 'Emily Wilson', 'Concierge', 0, 6543210987, 3500.00, '1993-09-20', 1234567892, 'H001'),
+(5678901234, 'Michael Brown', 'Security', 1, 5432109876, 2800.00, '1988-04-05', 1234567892, 'H001');
+GO;
+
+-- Insert data into the RoomType table
+INSERT INTO RoomType (room_type, Descriptions, price)
+VALUES
+('Standard', 'Standard room with basic amenities', 100.00),
+('Deluxe', 'Spacious room with additional amenities', 150.00),
+('Suite', 'Luxurious suite with separate living area', 200.00);
+GO;
+
+-- Insert data into the Room table
+INSERT INTO Room (room_id, hotel_id, room_type, [status])
+VALUES
+('R001', 'H001', 'Standard', 'Available'),
+('R002', 'H001', 'Standard', 'Occupied'),
+('R003', 'H001', 'Deluxe', 'Available'),
+('R004', 'H001', 'Deluxe', 'Available'),
+('R005', 'H001', 'Suite', 'Reserved');
+GO;
+
+-- Insert data into the Guest table
+INSERT INTO Guest (guest_SSN, guest_name, phone, sex, email, country)
+VALUES
+(1234567890, 'John Doe', '123-456-7890', 1, 'john.doe@example.com', 'USA'),
+(9876543210, 'Jane Smith', '987-654-3210', 0, 'jane.smith@example.com', 'UK'),
+(5555555555, 'Alice Johnson', NULL, 0, 'alice.johnson@example.com', 'Canada'),
+(1111111111, 'Bob Anderson', '111-111-1111', 1, NULL, 'Australia'),
+(9999999999, 'Eve Davis', NULL, 0, NULL, 'Germany');
+GO;
+
+-- Insert data into the Booking table
+INSERT INTO Booking (booking_id, guest_SSN, room_id, check_in_date, check_out_date, booking_date)
+VALUES
+('B001', 1234567890, 'R001', '2023-07-19', '2023-07-22', '2023-07-18'),
+('B002', 9876543210, 'R002', '2023-07-20', '2023-07-25', '2023-07-18'),
+('B003', 5555555555, 'R003', '2023-07-21', '2023-07-24', '2023-07-19'),
+('B004', 1111111111, 'R004', '2023-07-23', '2023-07-25', '2023-07-20'),
+('B005', 9999999999, 'R005', '2023-07-25', '2023-07-28', '2023-07-21');
+GO;
+
+-- Insert data into the Bill table
+INSERT INTO Bill (bill_id, guest_SSN, total_amount, payment_status, payment_date)
+VALUES
+('BL001', 1234567890, 300.0, 'Paid', '2023-07-18'),
+('BL002', 9876543210, 500.0, 'Pending', NULL),
+('BL003', 5555555555, 400.0, 'Paid', '2023-07-19'),
+('BL004', 1111111111, 200.0, 'Paid', '2023-07-20'),
+('BL005', 9999999999, 350.0, 'Pending', NULL);
+GO;
+
+-- Check data of the tables
+SELECT * FROM Bill
+SELECT * FROM Booking
+SELECT * FROM Employee
+SELECT * FROM Guest
+SELECT * FROM Hotel
+SELECT * FROM Room
+SELECT * FROM RoomType
+GO;
+
+-- Queries
+
+-- 1. Display supervisor of Employee whose name "David Johnson".
+SELECT * 
+FROM Employee e
+WHERE e.employee_SSN = (SELECT supervisor_SSN 
+					    FROM Employee
+						WHERE employee_name = 'David Johnson')
+GO;
+
+-- 2. Display all room are available.
+SELECT * 
+FROM Room r
+WHERE r.status = 'Available'
+GO;
+
+-- 3. Display all guest who have paid the bill.
+SELECT g.guest_SSN [Guest SSN], g.guest_name [Name], g.phone [Phone Number], g.country [Country]
+FROM Guest g
+JOIN Booking b ON g.guest_SSN = b.guest_SSN
+JOIN Bill bl ON b.booking_id = bl.booking_id
+WHERE bl.payment_status = 'Paid'
+GO;
+
+-- 4. Write a procedure that add a new employee into Employee table.
+CREATE PROCEDURE addEmp
 (
-	HotID NVARCHAR(5) NOT NULL,
-	HotName NVARCHAR(50) NOT NULL,
-	HotAddr NVARCHAR(50) NOT NULL,
-	Details NVARCHAR(100) NULL,
-	CONSTRAINT PK_HOTEL PRIMARY KEY CLUSTERED
-	(
-		HotID ASC  
-	) 
+@SSN DECIMAL(10,0),
+@name NVARCHAR(255),
+@role NVARCHAR(50),
+@sex BIT,
+@phone DECIMAL(10,0),
+@salary DECIMAL(10,0),
+@DOB DATE,
+@supervisor_SSN DECIMAL(10,0),
+@hotel_id NVARCHAR(10)
 )
+AS
+BEGIN 
+	IF EXISTS (SELECT 1 
+			   FROM Employee e
+			   WHERE e.employee_SSN = @SSN)
+		BEGIN 
+			PRINT 'Employee already exist.'
+		END
+	ELSE 
+		BEGIN 
+			INSERT INTO Employee VALUES(@SSN, @name, @role, @sex, @phone, @salary, @DOB, @supervisor_SSN, @hotel_id)
+			PRINT 'Add succesfully.'
+		END
+END
 GO;
 
-CREATE TABLE EMPLOYEE
+EXEC addEmp 1234567897, 'David Beckhum', 'Security', 1, 9876543219, 3000.00, '1990-09-02', 1234567890, 'H001'
+GO;
+
+-- 5. Write a function that display a bill of a guest by name.
+CREATE FUNCTION DisBill
 (
-	EmpSSN DECIMAL(18,0) NOT NULL,
-	Fisrt_Name NVARCHAR(20) NOT NULL,
-	Last_Name NVARCHAR(50) NOT NULL,
-	HotID NVARCHAR(5) NOT NULL,
-	RoleID NVARCHAR(5) NOT NULL,
-	Sex BIT NULL,
-	Date_of_Birth DATETIME NULL,
-	Contact DECIMAL(10,0) NULL,
-	Salary DECIMAL (10,0) NULL,
-	CONSTRAINT PK_EMPLOYEE PRIMARY KEY (EmpSSN),
-
-	CONSTRAINT CK_EMPLOYEE CHECK(YEAR(Date_of_Birth) < YEAR(GETDATE() - 18)),
-	CONSTRAINT FK_EMPLOYEE FOREIGN KEY (HotID) REFERENCES HOTEL(HotID),
-	CONSTRAINT FK_EMPLOYEE_1 FOREIGN KEY (RoleID) REFERENCES [ROLE](RoleID),
+@name NVARCHAR(255)
 )
+RETURNS TABLE
+AS
+RETURN 
+	(SELECT bl.bill_id [Bill ID], bl.total_amount [Price], bl.payment_status [Status], bl.payment_date [Payment Date]
+	 FROM Bill bl
+	 JOIN Booking b ON bl.booking_id = b.booking_id
+	 JOIN Guest g ON b.guest_SSN = g.guest_SSN
+	 WHERE g.guest_name = @name)
 GO;
 
-CREATE TABLE [ROLE]
-(
-	RoleID NVARCHAR(5) NOT NULL,
-	RoleTitle NVARCHAR(50) NULL,
-
-	CONSTRAINT PK_ROLE PRIMARY KEY CLUSTERED
-	(
-		RoleID ASC
-	)
-)
+SELECT [Bill ID], [Price], [Status], [Payment Date]
+FROM DisBill('Jane Doe')
 GO;
 
-CREATE TABLE ROOMS
-(
-	RoomID NVARCHAR(5) NOT NULL,
-	RoomType NVARCHAR(20) NOT NULL,
-	HotID NVARCHAR(5) NOT NULL,
-	Occupancy NVARCHAR(20) NULL,
-
-	CONSTRAINT PK_ROOMS PRIMARY KEY CLUSTERED 
-	(
-		RoomID ASC
-	),
-	CONSTRAINT FK_ROOMS FOREIGN KEY (HotID) REFERENCES HOTEL(HotID),
-	CONSTRAINT FK_ROOMS_1 FOREIGN KEY (RoomType) REFERENCES ROOMTYPE(RoomType)
-)
+/* 6. Write a trigger, when user add a new guest into Guest, 
+	  the triggle will automatically add a new bill into Bill.
+*/
+CREATE TRIGGER trg_AddBillForNewGuest
+ON Guest
+AFTER INSERT
+AS
+BEGIN
+  -- Insert a new bill for each newly inserted guest
+  INSERT INTO Bill (bill_id, guest_SSN, total_amount, payment_status, payment_date)
+  SELECT 'BL00' + RIGHT(CAST(ROW_NUMBER() OVER (ORDER BY guest_SSN) AS NVARCHAR(1)), 0),
+         guest_SSN, 0.0, 'Pending', NULL
+  FROM inserted
+  WHERE NOT EXISTS (
+    SELECT 1 FROM Bill WHERE Bill.guest_SSN = inserted.guest_SSN
+  );
+END
 GO;
-
-CREATE TABLE ROOMTYPE
-(
-	RoomType NVARCHAR(20) NOT NULL,
-	RoomPrice INT NULL,
-	Decription NVARCHAR(100) NULL,
-
-	CONSTRAINT PK_ROOMTYPE PRIMARY KEY (RoomType)
-)
-GO;
-
-CREATE TABLE BOOKING
-(	
-	BookingID NVARCHAR(5) NOT NULL,
-	RoomID NVARCHAR(5) NOT NULL,
-	HotID NVARCHAR(5) NOT NULL,
-	BookingDate DATETIME NULL,
-	BookingTime DATE NULL,
-	ArrivalDate DATETIME NULL,
-	ReturnDate DATETIME NULL,
-	Number_of_People INT NULL,
-	SpecialReq NVARCHAR(100) NULL,
-
-	CONSTRAINT PK_BOOKING PRIMARY KEY CLUSTERED 
-	(
-		BookingID ASC
-	),
-	CONSTRAINT FK_BOOKING FOREIGN KEY (HotID) REFERENCES HOTEL(HotID),
-	CONSTRAINT FK_BOOKING_1 FOREIGN KEY (RoomID) REFERENCES ROOMS(RoomID), 
-)
-GO;
-
-CREATE TABLE GUEST
-(
-	GuestSSN DECIMAL(18,0) NOT NULL,
-	HotID NVARCHAR(5) NOT NULL,
-	Fisrt_Name NVARCHAR(20) NOT NULL,
-	Last_Name NVARCHAR(50) NOT NULL,
-	Sex BIT NULL,
-	Date_of_Birth DATETIME NULL,
-	Contact DECIMAL(10,0) NULL,
-	Country NVARCHAR(10),
-
-	CONSTRAINT PK_GUEST PRIMARY KEY (GuestSSN),
-)
-GO;
-
-CREATE TABLE BILL
-(
-	BillID NVARCHAR(5) NOT NULL,
-	GuestSSN DECIMAL(18,0) NOT NULL,
-	RoomCharges INT NULL,
-	[Services] NVARCHAR(100) NULL,
-	CreditCard DECIMAL(10,0) NULL,
-	PaymentMethod NVARCHAR(50) NULL,
-	PaymentDate DATETIME NULL,
-	ExpiredDate DATETIME NULL,
-
-	CONSTRAINT PK_BILL PRIMARY KEY CLUSTERED
-	(
-		BillID ASC
-	),
-	CONSTRAINT FK_BILL FOREIGN KEY (GuestSSN) REFERENCES GUEST(GuestSSN)
-)
-GO;
-
-INSERT INTO HOTEL VALUES(N'HO001', N'Sea Tower', N'Bình Định', null)
-GO;
-
-INSERT INTO EMPLOYEE VALUES('7529810346', N'Nguyễn', N'Văn A', N'HO001', 'RO001', null, null, null, null)
-INSERT INTO EMPLOYEE VALUES('6098345271', N'Trần', N'Thị Thùy B', N'HO001', 'RO002', null, null, null, null)
-INSERT INTO EMPLOYEE VALUES('2857931460', N'Hoàng', N'Văn C', N'HO001', 'RO003', null, null, null, null)
-INSERT INTO EMPLOYEE VALUES('9302164857', N'Nguyễn', N'Gia Hoàng D', N'HO001', 'RO001', null, null, null, null)
-INSERT INTO EMPLOYEE VALUES('4165972083', N'Đỗ', N'Thị E', N'HO001', 'RO002', null, null, null, null)
-GO;
-
-INSERT INTO [ROLE] VALUES(N'RO001', N'Manager')
-INSERT INTO [ROLE] VALUES(N'RO002', N'Receptionist')
-INSERT INTO [ROLE] VALUES(N'RO003', N'Security')
-GO;
-
-INSERT INTO ROOMS VALUES(N'R0001', N'Normal', N'HO001', null)
-INSERT INTO ROOMS VALUES(N'R0002', N'VIP', N'HO001', null)
-INSERT INTO ROOMS VALUES(N'R0003', N'President', N'HO001', null)
-INSERT INTO ROOMS VALUES(N'R0004', N'Normal', N'HO001', null)
-INSERT INTO ROOMS VALUES(N'R0005', N'Normal', N'HO001', null)
-INSERT INTO ROOMS VALUES(N'R0006', N'VIP', N'HO001', null)
-GO;
-
-INSERT INTO ROOMTYPE VALUES(N'Normal', 500000, null)
-INSERT INTO ROOMTYPE VALUES(N'VIP', 1000000, null)
-INSERT INTO ROOMTYPE VALUES(N'President', 2000000, null)
-GO;
-
-INSERT INTO BOOKING VALUES(N'BO001', N'R0001', N'HO001', null, null, null, null, null, null)
-INSERT INTO BOOKING VALUES(N'BO002', N'R0002', N'HO001', null, null, null, null, null, null)
-INSERT INTO BOOKING VALUES(N'BO003', N'R0003', N'HO001', null, null, null, null, null, null)
-INSERT INTO BOOKING VALUES(N'BO004', N'R0004', N'HO001', null, null, null, null, null, null)
-INSERT INTO BOOKING VALUES(N'BO005', N'R0005', N'HO001', null, null, null, null, null, null)
-INSERT INTO BOOKING VALUES(N'BO006', N'R0006', N'HO001', null, null, null, null, null, null)
-GO;
-
-INSERT INTO GUEST VALUES(N'1256859654', N'HO001', N'Nguyễn', N'Xuân Quý', null, null, null, null)
-INSERT INTO GUEST VALUES(N'1256859645', N'HO001', N'Nguyễn Đào', N'Minh Thuận', null, null, null, null)
-INSERT INTO GUEST VALUES(N'1256859665', N'HO001', N'Ngô', N'Gia Hoàng', null, null, null, null)
-INSERT INTO GUEST VALUES(N'1256859678', N'HO001', N'Huỳnh', N'Lê Trung', null, null, null, null)
-INSERT INTO GUEST VALUES(N'1256859689', N'HO001', N'Nguyễn', N'Văn Đại', null, null, null, null)
-INSERT INTO GUEST VALUES(N'1256859623', N'HO001', N'Trần', N'Thị Bé', null, null, null, null)
-GO;
-
-INSERT INTO BILL VALUES(N'BI001', N'1256859654', null, null, null, null, null, null)
-INSERT INTO BILL VALUES(N'BI002', N'1256859645', null, null, null, null, null, null)
-INSERT INTO BILL VALUES(N'BI003', N'1256859665', null, null, null, null, null, null)
-INSERT INTO BILL VALUES(N'BI004', N'1256859678', null, null, null, null, null, null)
-INSERT INTO BILL VALUES(N'BI005', N'1256859689', null, null, null, null, null, null)
-INSERT INTO BILL VALUES(N'BI006', N'1256859623', null, null, null, null, null, null)
-GO;
-
