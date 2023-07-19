@@ -12,6 +12,9 @@ GO;
 USE DBI202_SU23_PROJECT_G4
 GO;
 
+
+-- CREATE TABLE
+
 -- Create a new table Hotel
 CREATE TABLE Hotel (
   hotel_id NVARCHAR(10) NOT NULL,
@@ -91,9 +94,9 @@ CREATE TABLE Booking (
   booking_id NVARCHAR(36) NOT NULL,
   guest_SSN DECIMAL(10,0) NOT NULL,
   room_id NVARCHAR(10) NOT NULL,
-  check_in_date DATE,
-  check_out_date DATE,
-  booking_date DATE,
+  check_in_date DATE NULL,
+  check_out_date DATE NULL,
+  booking_date DATE NULL,
 
   CONSTRAINT PK_Booking PRIMARY KEY CLUSTERED
   (
@@ -119,6 +122,8 @@ CREATE TABLE Bill (
   CONSTRAINT FK_Bill FOREIGN KEY (guest_SSN) REFERENCES Guest(guest_SSN)
 );
 GO;
+
+-- INSERT DATA INTO THE TABLES
 
 -- Insert data into the Hotel table
 INSERT INTO Hotel (hotel_id, hotel_name, [address], phone, email)
@@ -194,7 +199,8 @@ SELECT * FROM Room
 SELECT * FROM RoomType
 GO;
 
--- Queries
+
+-- QUERIES
 
 -- 1. Display supervisor of Employee whose name "David Johnson".
 SELECT * 
@@ -269,21 +275,7 @@ SELECT [Bill ID], [Price], [Status], [Payment Date]
 FROM DisBill('Jane Doe')
 GO;
 
-/* 6. Write a trigger, when user add a new guest into Guest, 
-	  the triggle will automatically add a new bill into Bill.
-*/
-CREATE TRIGGER trg_AddBillForNewGuest
-ON Guest
-AFTER INSERT
-AS
-BEGIN
-  -- Insert a new bill for each newly inserted guest
-  INSERT INTO Bill (bill_id, guest_SSN, total_amount, payment_status, payment_date)
-  SELECT 'BL00' + RIGHT(CAST(ROW_NUMBER() OVER (ORDER BY guest_SSN) AS NVARCHAR(1)), 0),
-         guest_SSN, 0.0, 'Pending', NULL
-  FROM inserted
-  WHERE NOT EXISTS (
-    SELECT 1 FROM Bill WHERE Bill.guest_SSN = inserted.guest_SSN
-  );
-END
-GO;
+
+
+
+
